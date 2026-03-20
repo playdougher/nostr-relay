@@ -36,24 +36,35 @@ func main() {
 	// 3. Simple Write Guard (OnEvent)
 	// This ensures only whitelisted pubkeys can save events
         relay.OnEvent = func(ctx context.Context, ev nostr.Event) (bool, string) {
-            // 1. 先拿到那个带前缀的原始字符串 (比如 "pk::06288d...")
-            rawPubKey := ev.PubKey.String()
-        
-            // 2. 强力去掉开头的 "pk::"（如果有的话）
-            // 这样 hexPK 就会变成干净的 "06288d..."
-            hexPK := strings.TrimPrefix(rawPubKey, "pk::")
-        
-            // 3. 编码 npub 用于日志显示
+            // 1. 基础信息处理
+            hexPK := strings.TrimPrefix(ev.PubKey.String(), "pk::")
             npub := nip19.EncodeNpub(ev.PubKey)
         
-            // 4. 比对白名单
+            // 2. 白名单检查 (DENY 逻辑)
             if len(whitelist) > 0 && !whitelist[hexPK] {
-                // 日志里我们看看脱皮后的 hexPK 对不对
-                fmt.Printf("[DENY WRITE] %s (Checking Hex: %s)\n", npub, hexPK)
+                // 使用与 HIT 一模一样的格式占位符
+                // %-5d 让 Kind 左对齐，%x... 让 ID 看起来专业
+                fmt.Printf("[DENY] Kind:%-5d | ID:%x... | From:%s\n", ev.Kind, ev.ID[:4], npub[:15])
                 return true, "auth-required: you are not on the whitelist"
             }
         
-            fmt.Printf("[ACCEPT WRITE] %s\n", npub)
+            // 3. 过滤器 (HIT 逻辑)
+            // isImportant := (ev.Kind == 1 || ev.Kind == 5 || ev.Kind == 7 || ev.Kind == 9735 || true)
+            isImportant := (ev.Kind == 1)
+        
+            if isImportant {
+                target := ""
+                if ev.Kind == 5 {
+                    for _, tag := range ev.Tags {
+                        if len(tag) >= 2 && (tag[0] == "e" || tag[0] == "a") {
+                            target = fmt.Sprintf(" -> Target:%s...", tag[1][:8])
+                        }
+                    }
+                }
+                // 保持格式高度一致
+                fmt.Printf("[HIT ] Kind:%-5d | ID:%x...%s | From:%s\n", ev.Kind, ev.ID[:4], target, npub[:15])
+            }
+        
             return false, ""
         }
 	// 4. Read Guard: Empty (Simplest)

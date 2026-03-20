@@ -4,3 +4,9 @@
 🚀 Relay is running with BoltDB at :3334
 🚀 Relay is running with BoltDB at :3334
 🚀 Relay is running with BoltDB at :3334
+Relay Start: 1 keys in whitelist
+Simple Private Relay running on :3334
+[DENY] Kind:1     | ID:b74962a7... | From:npub1h8r0vn49me
+[DENY] Kind:1     | ID:964b3b69... | From:npub1h8r0vn49me
+[DENY] Kind:1     | ID:0292fc84... | From:npub1h8r0vn49me
+[HIT ] Kind:1     | ID:d6013363... | From:npub1qc5g6q2f6p

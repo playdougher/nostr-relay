@@ -1,2 +1,8 @@
-relay.bolt
+nostr-relay
+
+*.bolt
+
+vendor/
+.env
+
 whitelist.txt

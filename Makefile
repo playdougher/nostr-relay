@@ -1,4 +1,5 @@
 BINARY_NAME=nostr-relay
+INSTALL_DIR=$(HOME)/go/bin
 
 # The default 'all' target
 all: build
@@ -15,9 +16,15 @@ build: tidy
 run: build
 	./$(BINARY_NAME)
 
-# 4. Clean up files
+# 4. Install the binary to ~/go/bin
+install: build
+	mkdir -p $(INSTALL_DIR)
+	cp $(BINARY_NAME) $(INSTALL_DIR)
+	@echo "Successfully installed $(BINARY_NAME) to $(INSTALL_DIR)"
+
+# 5. Clean up local files
 clean:
 	rm -f $(BINARY_NAME)
 	rm -f relay.bolt
 
-.PHONY: all tidy build run clean
+.PHONY: all tidy build run clean install
